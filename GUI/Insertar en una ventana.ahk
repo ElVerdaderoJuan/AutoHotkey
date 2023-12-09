@@ -7,35 +7,35 @@ CoordMode "Pixel", "Screen" ; La posición del mouse se obtiene en relación a l
 
 
 
-
-
-
 ;   #################################
 ;   #########   Variables   #########
 ;   #################################
 
-
-
 ;   GUIs
+Gui_Margin := 21
+Gui_BorderRadious := 15
 Width := 198
 Background_Margin := 6
 Objets_Margin := 6
-Game_Window := "A"
+Window := "A"
+Style_CheckBox := "0x8000"
 
 ;   Colores de las GUIs
-Color_Back := "222222"          ; Fondo
-Color_Back2 := "333333"         ; Fondo encima del fondo
-Color_BackMenu := "222222"      ; Fondo del MenuBar
-Color_TextMenu := "FFFFFF"      ; Texto del MenuBAr
-Color_TextDefault := "858585"   ; Texto por defecto
-Color_Spaces := "444444"        ; Fondo de espacios especiales
-Color_Advice := "C7C7C7"        ; Texto de aviso o sugerencia
-Color_Success := "5AFEE8"        ; Texto de aviso o sugerencia
+Color_Back := "00A192"          ; Fondo
+Color_Back2 := "FDE8BD"         ; Fondo encima del fondo
+Color_BackMenu := "01787C"      ; Fondo del MenuBar
+Color_TextMenu := "F5E8BF"      ; Texto del MenuBAr
+Color_TextDefault := "AB5533"   ; Texto por defecto
+Color_Spaces := "FFFAF0"        ; Fondo de espacios para poner texto llamativo o que indica algo
+Color_TextAdvice := "D42626"    ; Texto de aviso o sugerencia
+Color_Success := "006E50"       ; TextoFCF7EB de aviso o sugerencia
 Color_Error := "FF4A4A"         ; Texto de error
+Color_TextButton := "692E17"    ; Texto de los botones secundarios
+Color_Button := "E6B85E"        ; Color del borde de los botones
 
 ;   Hotkeys (Teclas de acceso rápido)
 Hotkey_Cannon := [
-    "F1",   ; Cañón izquierda
+    "F1",   ; Cañón izquierdaFCF7EB
     "F2",   ; Cañón centro
     "F3",   ; Cañón derecho
     "F4"    ; Cañón hacia arriba
@@ -57,82 +57,68 @@ Cannons_Color := Integer(0x999999) ; Color que se busca para hacer click en el c
 
 
 
-
-
-
 ;   #########################################
 ;   #########   Creación de GUIs    #########
 ;   #########################################
 
+;   En esta GUI seleccionas en qué ventana quieres insetar la GUI
+Gui_Insert := Gui("-Caption LastFound AlwaysOnTop")
+Gui_Insert.BackColor := Color_Back
+Gui_Insert.MarginX := Gui_Margin
+Gui_Insert.MarginY := Gui_Margin
+Gui_Insert.SetFont("c" Color_TextDefault " q4 s11")
+Gui_Insert.Add("Text", "x0 y0 Background" Color_BackMenu " c" Color_TextMenu " vInsert_TitleBar w" Width + Gui_Insert.MarginX " h26 0x200 Center", "Insetrar en una ventana")
+Gui_Insert.Add("Text", "x" Background_Margin " y+" Background_Margin " Background" Color_Back2 " vInsert_Background w" Width + Gui_Insert.MarginX / 2 " h120 Center")
+Gui_Insert["Insert_Background"].GetPos(, &Y,, &H)
+Gui_Insert.Add("Text", "BackgroundTrans w" Width " vInsert_Texto Section x" Background_Margin + Objets_Margin " y" Y + Objets_Margin, "Haz clic en en una ventana para seleccionarla")
+Gui_Insert.Add("Text", "Background" Color_Spaces " c" Color_TextAdvice " Center w" Width " vInsert_Window y+" Objets_Margin, "Sin seleccionar")
+Gui_Insert.Add("Button", "Background" Color_Button " y+" Objets_Margin*2 " vInsert_Boton w" Width " Disabled", "Insertar")
+Gui_Insert.Add("Text", "BackgroundTrans vInsert_LastObject x" Background_Margin + Objets_Margin " y+0 w" Width, "Pruebita")
+Gui_Insert["Insert_Window"].GetPos(,,, &H)
+Gui_Insert["Insert_Window"].Move(,,, H*1.4)
+Gui_Insert["Insert_LastObject"].GetPos(, &Y,, &H)
+Gui_Insert["Insert_Background"].Move(,,, H+Y-Gui_Margin*2)
+Gui_Insert_ID := Gui_Insert.hwnd
+Gui_Insert["Insert_TitleBar"].OnEvent("Click", Window_Move)
+Gui_Insert["Insert_Boton"].OnEvent("Click", Gui_Insert_Next)
 
-
-;   Ventana de selección de juego inicial
-Gui_Inyeccion := Gui("-Caption LastFound AlwaysOnTop")
-Gui_Inyeccion.BackColor := Color_Back ;122529
-Gui_Inyeccion.MarginX := 21
-Gui_Inyeccion.MarginY := 21
-Gui_Inyeccion.SetFont("c" Color_TextDefault " q4 s11") ;  Other font 8888FF
-Gui_Inyeccion.Add("Text", "x0 y0 Background" Color_BackMenu " c" Color_TextMenu " vInyeccion_TitleBar w" Width + Gui_Inyeccion.MarginX " h26 0x200 Center", "Agregar ventana")
-Gui_Inyeccion.Add("Text", "x" Background_Margin " y+" Background_Margin " Background" Color_Back2 " vInyeccion_Background w" Width + Gui_Inyeccion.MarginX / 2 " h120 Center")
-Gui_Inyeccion["Inyeccion_Background"].GetPos(, &Y,, &H)
-Gui_Inyeccion.Add("Text", "BackgroundTrans w" Width " vInyeccion_Texto Section x" Background_Margin + Objets_Margin " y" Y + Objets_Margin, "Haz clic en la ventana en la que tienes abierto Mega")
-Gui_Inyeccion.Add("Text", "Background" Color_Spaces " c" Color_Advice " Center w" Width " vInyeccion_Window y+" Objets_Margin, "Sin seleccionar")
-Gui_Inyeccion.Add("Button", "Background" Color_TextMenu " vInyeccion_Boton w" Width " Disabled", "Continuar")
-Gui_Inyeccion.Add("Text", "BackgroundTrans vInyeccion_LastObject x" Background_Margin + Objets_Margin " y+0 w" Width)
-Gui_Inyeccion["Inyeccion_Window"].GetPos(,,, &H)
-Gui_Inyeccion["Inyeccion_Window"].Move(,,, H*1.4)
-Gui_Inyeccion["Inyeccion_LastObject"].GetPos(, &Y,, &H)
-Gui_Inyeccion["Inyeccion_Background"].Move(,,, H+Y-42)
-Gui_Inyeccion_ID := Gui_Inyeccion.hwnd
-Gui_Inyeccion["Inyeccion_TitleBar"].OnEvent("Click", Window_Move)
-Gui_Inyeccion["Inyeccion_Boton"].OnEvent("Click", Gui_Inyeccion_Next)
-
-
-
-;   ----------------------------------------------
-
-
-
-;   Ventana inicial para activar/desactivar macros
-Gui_Inicio := Gui("-Caption LastFound")
-Gui_Inicio.BackColor := Color_Back ;122529
-Gui_Inicio.MarginX := 21
-Gui_Inicio.MarginY := 21
-Gui_Inicio.SetFont("c" Color_TextDefault " q4 s11") ;  Other font 8888FF
-Gui_Inicio.Add("Text", "x0 y0 Background" Color_BackMenu " c" Color_TextMenu " vInicio_TitleBar w" Width + Gui_Inicio.MarginX " h26 0x200 Center", "Multi Macro TFM")
-Gui_Inicio.Add("Text", "x" Background_Margin " y+" Background_Margin " Background" Color_Back2 " vInicio_Background w" Width + Gui_Inicio.MarginX / 2 " h120 Center")
-Gui_Inicio["Inicio_Background"].GetPos(, &Y,, &H)
-Gui_Inicio.Add("CheckBox", "Background" Color_Back2 " 0x8000 vInicio_CheckBox_Cannons Section x" Background_Margin + Objets_Margin " y" Y + Objets_Margin, "Auto clic cañones")
-Gui_Inicio.Add("CheckBox", "Background" Color_Back2 " 0x8000 vInicio_CheckBox_Objets y+" Objets_Margin, "Auto clic en color")
-Gui_Inicio.Add("CheckBox", "Background" Color_Back2 " 0x8000 vInicio_CheckBox_Places y+" Objets_Margin, "Auto clic en un lugar")
-Gui_Inicio.Add("CheckBox", "Background" Color_Back2 " 0x8000 vInicio_CheckBox_Clicks y+" Objets_Margin, "Múltiples clicks")
-Gui_Inicio.Add("CheckBox", "Background" Color_Back2 " 0x8000 vInicio_CheckBox_Move y+" Objets_Margin, "Moverse infinitamente")
-Gui_Inicio.SetFont("c" Color_Spaces " s15")
-Gui_Inicio.Add("Text", "BackgroundTrans vInicio_Circle1 ys y" Y + 1, "⚫")
-Gui_Inicio.Add("Text", "BackgroundTrans vInicio_Circle2 y+-" Objets_Margin/2, "⚫")
-Gui_Inicio.Add("Text", "BackgroundTrans vInicio_Circle3 y+-" Objets_Margin/2, "⚫")
-Gui_Inicio.Add("Text", "BackgroundTrans vInicio_Circle4 y+-" Objets_Margin/2, "⚫")
-Gui_Inicio.Add("Text", "BackgroundTrans vInicio_Circle5 y+-" Objets_Margin/2, "⚫")
-Gui_Inicio.SetFont("c" Color_TextMenu " s12")
-Gui_Inicio["Inicio_Circle1"].GetPos(&X, &Y)
-Gui_Inicio.Add("Text", "BackgroundTrans x" X+2 " y" Y+3, "✏️")
-Gui_Inicio["Inicio_Circle2"].GetPos(&X, &Y)
-Gui_Inicio.Add("Text", "BackgroundTrans x" X+2 " y" Y+3, "✏️")
-Gui_Inicio["Inicio_Circle3"].GetPos(&X, &Y)
-Gui_Inicio.Add("Text", "BackgroundTrans x" X+2 " y" Y+3, "✏️")
-Gui_Inicio["Inicio_Circle4"].GetPos(&X, &Y)
-Gui_Inicio.Add("Text", "BackgroundTrans x" X+2 " y" Y+3, "✏️")
-Gui_Inicio["Inicio_Circle5"].GetPos(&X, &Y)
-Gui_Inicio.Add("Text", "BackgroundTrans x" X+2 " y" Y+3, "✏️")
-Gui_Inicio.Add("Text", "BackgroundTrans vInicio_LastObject x" Background_Margin + Objets_Margin " y+0 w" Width)
-Gui_Inicio["Inicio_LastObject"].GetPos(, &Y,, &H)
-Gui_Inicio["Inicio_Background"].Move(,,, H+Y-42)
-Gui_Inicio_ID := Gui_Inicio.hwnd
-Gui_Inicio["Inicio_TitleBar"].OnEvent("Click", Window_Move)
-Gui_Inicio["Inicio_CheckBox_Cannons"].OnEvent("Click", Inicio_Toggle_Cannons)
-
-
-
+;   Esta GUI es la que se muestra insertada en la ventana que se seleccionó
+Gui_Home := Gui("-Caption LastFound")
+Gui_Home.BackColor := Color_Back
+Gui_Home.MarginX := 21
+Gui_Home.MarginY := 21
+Gui_Home.SetFont("c" Color_TextDefault " q4 s11")
+Gui_Home.Add("Text", "x0 y0 Background" Color_BackMenu " c" Color_TextMenu " vHome_TitleBar w" Width + Gui_Home.MarginX " h26 0x200 Center", "Mi GUI")
+Gui_Home.Add("Text", "x" Background_Margin " y+" Background_Margin " Background" Color_Back2 " vHome_Background w" Width + Gui_Home.MarginX / 2 " h120 Center")
+Gui_Home["Home_Background"].GetPos(, &Y,, &H)
+Gui_Home.Add("CheckBox", "Background" Color_Back2 " " Style_CheckBox " vHome_Option1 Section x" Background_Margin + Objets_Margin " y" Y + Objets_Margin, "Opcion 1")
+Gui_Home.Add("CheckBox", "Background" Color_Back2 " " Style_CheckBox " vHome_Option2 y+" Objets_Margin, "Opcion 2")
+Gui_Home.Add("CheckBox", "Background" Color_Back2 " " Style_CheckBox " vHome_Option3 y+" Objets_Margin, "Opcion 3")
+Gui_Home.Add("CheckBox", "Background" Color_Back2 " " Style_CheckBox " vHome_Option4 y+" Objets_Margin, "Opcion 4")
+Gui_Home.SetFont("c" Color_Spaces " s15")
+Gui_Home["Home_Option1"].GetPos(&X, &Y, &W)
+Gui_Home.Add("Text", "BackgroundTrans vHome_Circle1 x" X+W + Objets_Margin/2 " ys y" Y+-Objets_Margin, "⚫")
+Gui_Home["Home_Option2"].GetPos(&X, &Y, &W)
+Gui_Home.Add("Text", "BackgroundTrans vHome_Circle2 x" X+W + Objets_Margin/2 " y" Y+-Objets_Margin, "⚫")
+Gui_Home["Home_Option3"].GetPos(&X, &Y, &W)
+Gui_Home.Add("Text", "BackgroundTrans vHome_Circle3 x" X+W + Objets_Margin/2 " y" Y+-Objets_Margin, "⚫")
+Gui_Home["Home_Option4"].GetPos(&X, &Y, &W)
+Gui_Home.Add("Text", "BackgroundTrans vHome_Circle4 x" X+W + Objets_Margin/2 " y" Y+-Objets_Margin, "⚫")
+Gui_Home.SetFont("c" Color_TextButton " s12")
+Gui_Home["Home_Circle1"].GetPos(&X, &Y)
+Gui_Home.Add("Text", "BackgroundTrans x" X+2 " y" Y+3, "✏️")
+Gui_Home["Home_Circle2"].GetPos(&X, &Y)
+Gui_Home.Add("Text", "BackgroundTrans x" X+2 " y" Y+3, "✏️")
+Gui_Home["Home_Circle3"].GetPos(&X, &Y)
+Gui_Home.Add("Text", "BackgroundTrans x" X+2 " y" Y+3, "✏️")
+Gui_Home["Home_Circle4"].GetPos(&X, &Y)
+Gui_Home.Add("Text", "BackgroundTrans x" X+2 " y" Y+3, "✏️")
+Gui_Home.Add("Text", "BackgroundTrans vHome_LastObject x" Background_Margin + Objets_Margin " y+-10 w" Width, "Pruebita")
+Gui_Home["Home_LastObject"].GetPos(, &Y,, &H)
+Gui_Home["Home_Background"].Move(,,, H+Y-Gui_Margin*2+Objets_Margin)
+Gui_Home_ID := Gui_Home.hwnd
+Gui_Home["Home_TitleBar"].OnEvent("Click", Window_Move)
+Gui_Home["Home_Option1"].OnEvent("Click", Home_Toggle_Option1)
 
 
 
@@ -143,34 +129,28 @@ Gui_Inicio["Inicio_CheckBox_Cannons"].OnEvent("Click", Inicio_Toggle_Cannons)
 ;   #########   Iniciar programa - Muestra ventana de selección de ventanas     #########
 ;   #####################################################################################
 
-
-
 ;   Mostrar la ventana de inyección
-Gui_Inyeccion.Show("w" Width + Gui_Inyeccion.MarginX)
-Gui_Inyeccion.GetPos(,, &W, &H)
-Gui_Inyeccion.Move(,,, H-24)
-WinSetRegion "0-0 r15-15 w" W+1 " H" H-24, "ahk_id " Gui_Inyeccion_ID
+Gui_Insert.Show("w" Width + Gui_Insert.MarginX)
+Gui_Insert.GetPos(,, &W, &H)
+
+Reducer := 26
+WinSetRegion "0-0 r" Gui_BorderRadious "-" Gui_BorderRadious " w" W+1 " H" H-Reducer, "ahk_id " Gui_Insert_ID
 Hotkey "~" Hotkey_WindowSelect, WindowSelect, "On"
 return
-
-
 
 ;   Selecionar una ventana y poner el nombre sin la extensión .exe en el cuadro
 WindowSelect(*)
 {
-    MouseGetPos ,, &Window
-    if (Window != Gui_Inyeccion.hwnd)
+    MouseGetPos ,, &Window_ID
+    if (Window_ID != Gui_Insert.hwnd)
     {
-        Gui_Inyeccion["Inyeccion_Window"].Text := UpperFirst(CleanExtension(WinGetProcessName("ahk_id " Window)))
-        Gui_Inyeccion["Inyeccion_Window"].SetFont("c" Color_Success)
-        Gui_Inyeccion["Inyeccion_Texto"].Text := "Si quieres cambiar la ventana haz clic en otra"
-        Gui_Inyeccion["Inyeccion_Boton"].Enabled := true
-        Global Game_Window := Window
+        Gui_Insert["Insert_Window"].Text := UpperFirst(CleanExtension(WinGetProcessName("ahk_id " Window_ID)))
+        Gui_Insert["Insert_Window"].SetFont("c" Color_Success)
+        Gui_Insert["Insert_Texto"].Text := "Para reemplazar la ventana haz clic en otra"
+        Gui_Insert["Insert_Boton"].Enabled := true
+        Global Window := Window_ID
     }
 }
-
-
-
 
 
 
@@ -181,21 +161,19 @@ WindowSelect(*)
 ;   #########   Cierra Gui de selección de ventanas - Abre ventana de activar/desactivar macros     #########
 ;   #########################################################################################################
 
-
-
-Gui_Inyeccion_Next(*)
+Gui_Insert_Next(*)
 {
-    Gui_Inyeccion["Inyeccion_Boton"].Enabled := false
+    Gui_Insert["Insert_Boton"].Enabled := false
     Hotkey "~" Hotkey_WindowSelect, WindowSelect, "Off"
-    Gui_Inicio.Opt("+Owner" Game_Window)
-    Gui_Inyeccion.Destroy()
-    Gui_Inicio.Show("Center w" Width + Gui_Inicio.MarginX)
-    Gui_Inicio.GetPos(,, &W, &H)
-    Gui_Inicio.Move(,,, H-24)
-    WinSetRegion "0-0 r15-15 w" W+1 " H" H-24, "ahk_id " Gui_Inicio_ID
+    Gui_Home.Opt("+Owner" Window)
+    Gui_Insert.Destroy()
+    Gui_Home.Show("Center w" Width + Gui_Home.MarginX)
+    Gui_Home.GetPos(,, &W, &H)
+    Reducer := 39
+
+    ;Gui_Home.Move(,,, H-Reducer)
+    WinSetRegion "0-0 r" Gui_BorderRadious "-" Gui_BorderRadious " w" W+1 " H" H-Reducer, "ahk_id " Gui_Home_ID
 }
-
-
 
 
 
@@ -206,14 +184,12 @@ Gui_Inyeccion_Next(*)
 ;   #########   Auto Clic Cañones   #########
 ;   #########################################
 
-
-
 ;   Activar/Desactivar Auto click en cañones
-Inicio_Toggle_Cannons(*)
+Home_Toggle_Option1(*)
 {
-    if (Gui_Inicio["Inicio_CheckBox_Cannons"].Value)
+    if (Gui_Home["Home_CheckBox_Cannons"].Value)
     {
-        HotIfWinActive "Ahk_id " Game_Window
+        HotIfWinActive "Ahk_id " Window
         Hotkey Hotkey_Cannon[1], Cannon1, "On"
         Hotkey Hotkey_Cannon[2], Cannon2, "On"
         Hotkey Hotkey_Cannon[3], Cannon3, "On"
@@ -222,7 +198,7 @@ Inicio_Toggle_Cannons(*)
     }
     else
     {
-        HotIfWinActive "Ahk_id " Game_Window
+        HotIfWinActive "Ahk_id " Window
         Hotkey Hotkey_Cannon[1], Cannon1, "Off"
         Hotkey Hotkey_Cannon[2], Cannon2, "Off"
         Hotkey Hotkey_Cannon[3], Cannon3, "Off"
@@ -230,8 +206,6 @@ Inicio_Toggle_Cannons(*)
         HotIfWinActive
     }
 }
-
-
 
 ;   Hacer clic en el cañón
 Cannon1(*)
@@ -257,7 +231,7 @@ AutoClickCannon(Column)
 {
     if PixelSearch(&X, &Y, Cannons_Area[Column][1], Cannons_Area[Column][2], Cannons_Area[Column][3], Cannons_Area[Column][4], Cannons_Color)
     {
-        ControlClick "X" X " Y" Y, Game_Window
+        ControlClick "X" X " Y" Y, Window
     }
     else
     {
@@ -272,14 +246,9 @@ AutoClickCannon(Column)
 
 
 
-
-
-
 ;   ###########################################
 ;   #########   Funciones globales    #########
 ;   ###########################################
-
-
 
 ; Convertir primera letra de alguna cadena en mayúscula
 UpperFirst(String)
@@ -287,7 +256,7 @@ UpperFirst(String)
     return StrUpper(SubStr(String, 1, 1)) SubStr(String, 2)
 }
 
-; Limpiar extensión de una cadena (.exe .io .pdf y todo lo que esté desde el punto al final de la cadena hacia adelante)
+;   Limpiar extensión de una cadena (.exe .io .pdf y todo lo que esté desde el punto al final de la cadena hacia adelante)
 CleanExtension(String)
 {
     return SubStr(String, 1, InStr(String, ".",, -1, -1) - 1)
@@ -298,9 +267,6 @@ Window_Move(*)
 {
     PostMessage 0xA1, 2
 }
-
-
-
 
 
 
