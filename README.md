@@ -1,4 +1,6 @@
 # English
+### GUI: Templates and settings for GUIs
+#### Insert into a window
 Create a beautifully styled GUI that allows you to insert a new GUI inside any window
 
 # Español
