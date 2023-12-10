@@ -1,7 +1,6 @@
 # English
 Create a beautifully styled GUI that allows you to insert a new GUI inside any window
-
-
+ 
 
 # Español
 ### GUI: Plantillas y ajustes para las GUI
