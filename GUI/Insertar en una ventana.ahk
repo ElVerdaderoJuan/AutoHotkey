@@ -60,7 +60,7 @@ ColorGradientSuccess := [  ; Degradado de color de verde claro a verde oscuro
     "00805E",   ; 11        ↓
     "007354"    ; 12 → Verde oscuro
 ]
-ColorGradientError := [  ; Degradado de color de rojo claro a amarillo claro
+ColorGradientError := [  ; Degradado de color de rojo claro a verde
     "D42626",   ; 1  → Rojo claro
     "C92C26",   ; 2         ↑
     "BF3126",   ; 3         |
@@ -72,7 +72,7 @@ ColorGradientError := [  ; Degradado de color de rojo claro a amarillo claro
     "7F5227",   ; 9         |
     "745828",   ; 10        |
     "6A5D28",   ; 11        ↓
-    "5F6328"    ; 12 → Amarillo claro
+    "5F6328"    ; 12 → Verde
 ]
 
 ;   Teclas de acceso rápido
