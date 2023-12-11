@@ -13,7 +13,11 @@ CoordMode "Pixel", "Screen" ; La posición del mouse se obtiene en relación a l
 
 ;   GUIs
 Gui_BorderRadious := 15
-Gui_Font := "Arial"
+Gui_Font := "MS Reference Sans Serif"
+Gui_SizeTitle := 11
+Gui_SizeText := 10
+Gui_StyleTitle := "Bold"
+Gui_StyleText := "Norm"
 Gui_Margin := 21
 Style_CheckBox := "0x8000"
 Style_Text := "0x200"
@@ -35,9 +39,9 @@ Color_BackMenu := "01787C"        ; Fondo del MenuBar
 Color_TextMenu := "F5E8BF"        ; Texto del MenuBAr
 Color_TextDefault := "AB5533"     ; Texto por defecto
 Color_Spaces := "FFFAF0"          ; Fondo de espacios para poner texto llamativo o que indica algo
-Color_TextAdvice := "D42626"      ; Texto de aviso o sugerencia
+Color_TextAdvice := "5F6328"      ; Texto de aviso o sugerencia
 Color_Success := "007354"         ; Texto de aviso o sugerencia
-Color_Error := "FF4A4A"           ; Texto de error
+Color_TextError := "D42626"       ; Texto de error
 Color_TextButton := "692E17"      ; Texto de los botones secundarios
 Color_Button := "E6B85E"          ; Color del borde de los botones
 Color_MenuButton := "015E61"      ; Color del botón del menú de barra
@@ -74,7 +78,7 @@ Gui_Insert := Gui("-Caption LastFound AlwaysOnTop")
 Gui_Insert.BackColor := Color_Back
 Gui_Insert.MarginX := Gui_Margin
 Gui_Insert.MarginY := Gui_Margin
-Gui_Insert.SetFont("c" Color_TextDefault " q4 s11", Gui_Font)
+Gui_Insert.SetFont(" c" Color_TextDefault " s" Gui_SizeText " " Gui_StyleText, Gui_Font)
 Gui_Insert.Add("Text", "x0 y0 Background" Color_BackMenu " c" Color_TextMenu " vInsert_TitleBar w" Width + Gui_Insert.MarginX " h" Size_TitleBar " " Style_Text " Center", "Insetrar en una ventana")
 Gui_Insert.Add("Text", "x" Background_Margin " y+" Background_Margin " Background" Color_Back2 " vInsert_Background w" Width + Gui_Insert.MarginX / 2 " h120 Center")
 Gui_Insert["Insert_Background"].GetPos(, &Y,, &H)
@@ -97,17 +101,17 @@ Gui_Home := Gui("-Caption LastFound")
 Gui_Home.BackColor := Color_Back
 Gui_Home.MarginX := 21
 Gui_Home.MarginY := 21
-Gui_Home.SetFont("c" Color_TextDefault " q4 s11", Gui_Font)
+Gui_Home.SetFont("q4 c" Color_TextDefault " s" Gui_SizeText " " Gui_StyleText, Gui_Font)
 Gui_Home.Add("Text", "x0 y0 Background" Color_BackMenu " c" Color_TextMenu " vHome_TitleBar w" Width + Gui_Home.MarginX " h" Size_TitleBar " " Style_Text " Center", "Insertar en una ventana")
 Gui_Home.Add("Text", "x" Background_Margin " y+" Background_Margin " Background" Color_Back2 " vHome_Background w" Width + Gui_Home.MarginX / 2 " Center")
 Gui_Home["Home_Background"].GetPos(, &Y,, &H)
-Gui_Home.SetFont("s13 Bold")
+Gui_Home.SetFont("s" Gui_SizeTitle " " Gui_StyleTitle)
 Gui_Home.Add("Text", "Background" Color_Back2 " Center " Style_CheckBox " Section x" Background_Margin + Objets_Margin " w" Objets_W " y" Y + Objets_Margin, "Contenido para tu GUI")
-Gui_Home.SetFont("s11 Norm")
+Gui_Home.SetFont("s" Gui_SizeText " " Gui_StyleText)
 Gui_Home.Add("Text", "BackgroundTrans w" Objets_W " y+" Objets_Margin " vHome_Text", "• Esta GUI ahora pertenece a la ventana actual")
 Gui_Home.Add("Text", "BackgroundTrans w" Objets_W " y+" Objets_Margin, "• El tamaño del alto de la GUI se adaptará automáticamente")
 Gui_Home.Add("Text", "BackgroundTrans w" Objets_W " y+" Objets_Margin, "• Modifica todo editando las variables del principio del script")
-Gui_Home.Add("Text", "BackgroundTrans vHome_SizeController x" Background_Margin + Objets_Margin " y+-10 w" Width)
+Gui_Home.Add("Text", "BackgroundTrans vHome_SizeController x" Background_Margin + Objets_Margin " y+-" Objets_Margin "  w" Width)
 Gui_Home["Home_SizeController"].GetPos(, &Y,, &H)
 Gui_Home["Home_Background"].Move(,,, H+Y-Gui_Margin*2+Objets_Margin)
 Gui_Home["Home_TitleBar"].OnEvent("Click", Window_Move)
@@ -142,12 +146,15 @@ WindowSelect(*)
         Gui_Insert["Insert_Window"].setFont("Bold")
         Gui_Insert["Insert_Texto"].Text := "Para reemplazar la ventana haz clic en otra"
         Gui_Home["Home_Text"].Text := "• Esta GUI ahora pertenece a la ventana " WindowName
-        Gui_Insert["Insert_Boton"].Enabled := true
         Global Window := Window_ID
+        Gui_Insert["Insert_Boton"].Enabled := true
         for Color in ColorGradient
         {
-            Gui_Insert["Insert_Window"].SetFont("c" Color)
-            sleep 39
+            if (WinExist("ahk_id " Gui_Insert_ID))
+            {
+                Gui_Insert["Insert_Window"].SetFont("c" Color)
+                sleep 39
+            }
         }
     }
 }
@@ -182,15 +189,15 @@ Gui_Insert_Next(*)
 ;   #######################################################
 
 ; Convertir primera letra de alguna cadena en mayúscula
-UpperFirst(String)
+UpperFirst(Text)
 {
-    return StrUpper(SubStr(String, 1, 1)) SubStr(String, 2)
+    return StrUpper(SubStr(Text, 1, 1)) SubStr(Text, 2)
 }
 
 ;   Limpiar extensión de una cadena (.exe .io .pdf y todo lo que esté desde el punto al final de la cadena hacia adelante)
-CleanExtension(String)
+CleanExtension(Text)
 {
-    return SubStr(String, 1, InStr(String, ".",, -1, -1) - 1)
+    return SubStr(Text, 1, InStr(Text, ".",, -1, -1) - 1)
 }
 
 ;   Mover la ventana activa
