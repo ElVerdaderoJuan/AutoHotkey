@@ -27,10 +27,8 @@ Background_Margin := 6
 Objets_Margin := 6
 Objets_W := Width-Objets_Margin/2
 Window := "A"
-InsertType := [
-    "Owner",    ; 1. Recomendado, independiente de la ventana pero se minimiza y se abre junto con ella
-    "Parent"    ; 2. Depende de la ventana, se mueve, minimiza, se abre y se cierra junto con ella, y solo es visible dentro de la ventana
-]
+InsertType := "Owner"       ; Recomendado, independiente de la ventana pero se minimiza y se abre junto con ella
+;InsertType := "Parent"     ; Depende de la ventana, se mueve, minimiza, se abre y se cierra junto con ella, y solo es visible dentro de la ventana
 
 ;   Colores de las GUIs
 Color_Back := "00A192"            ; Fondo
@@ -72,7 +70,7 @@ ColorGradientError := [  ; Degradado de color de rojo claro a verde
     "7F5227",   ; 9         |
     "745828",   ; 10        |
     "6A5D28",   ; 11        ↓
-    "5F6328"    ; 12 →    Verde
+    "5F6328"    ; 12 →   Verde
 ]
 
 ;   Teclas de acceso rápido
@@ -93,21 +91,24 @@ Gui_Insert.BackColor := Color_Back
 Gui_Insert.MarginX := Gui_Margin
 Gui_Insert.MarginY := Gui_Margin
 Gui_Insert.SetFont(" c" Color_TextDefault " s" Gui_SizeText " " Gui_StyleText, Gui_Font)
-Gui_Insert.Add("Text", "x0 y0 Background" Color_BackMenu " c" Color_TextMenu " vInsert_TitleBar w" Width + Gui_Insert.MarginX " h" Size_TitleBar " " Style_Text " Center", "Insetrar en una ventana")
+Gui_Insert.Add("Text", "x0 y0 Background" Color_BackMenu " vInsert_TitleBar w" Width + Gui_Insert.MarginX " h" Size_TitleBar " " Style_Text " Center")
 Gui_Insert.Add("Text", "x" Background_Margin " y+" Background_Margin " Background" Color_Back2 " vInsert_Background w" Width + Gui_Insert.MarginX / 2 " h120 Center")
 Gui_Insert["Insert_Background"].GetPos(, &Y,, &H)
 Gui_Insert.Add("Text", "BackgroundTrans w" Width " vInsert_Text Section x" Background_Margin + Objets_Margin " y" Y + Objets_Margin, "Haz clic en en una ventana para seleccionarla")
 Gui_Insert.Add("Text", "Background" Color_Spaces " c" Color_TextAdvice " Center w" Width " vInsert_Window y+" Objets_Margin, "Sin seleccionar")
 Gui_Insert.Add("Button", "Background" Color_Button " y+" Objets_Margin*2 " vInsert_Boton w" Width " Disabled", "Insertar")
 Gui_Insert.Add("Text", "BackgroundTrans vInsert_LastObject x" Background_Margin + Objets_Margin " y+0 w" Width)
-;Gui_Insert["Insert_TitleBar"].GetPos(&X, &Y, &W,)
-;Gui_Insert.Add("Text", "Background" Color_MenuButton " c" Color_TextMenuButton " vInsert_ButtonX x" X+W-24 " y" Y+5, "✖")
+Gui_Insert["Insert_TitleBar"].GetPos(,,, &H)
+Gui_Insert.Add("Text", "x0 y0 BackgroundTrans c" Color_TextMenu " vInsert_TitleBarText w" Width + Gui_Insert.MarginX-H " h" Size_TitleBar " " Style_Text " Center", "Insetrar en una ventana")
+Gui_Insert["Insert_TitleBar"].GetPos(&X, &Y, &W,)
+Gui_Insert.Add("Text", "Center Background" Color_MenuButton " c" Color_TextMenuButton " vInsert_ButtonX x" W-Gui_Insert.MarginX-1 " y" Y+5 " w" h-h/3 " h" h-h/3, "✖")
 Gui_Insert["Insert_Window"].GetPos(,,, &H)
 Gui_Insert["Insert_Window"].Move(,,, H*1.4)
 Gui_Insert["Insert_LastObject"].GetPos(, &Y,, &H)
 Gui_Insert["Insert_Background"].Move(,,, H+Y-Gui_Margin*2)
 Gui_Insert_ID := Gui_Insert.hwnd
-Gui_Insert["Insert_TitleBar"].OnEvent("Click", Window_Move)
+Gui_Insert["Insert_TitleBarText"].OnEvent("Click", Window_Move)
+Gui_Insert["Insert_ButtonX"].OnEvent("Click", Window_Close)
 Gui_Insert["Insert_Boton"].OnEvent("Click", Gui_Insert_Next)
 
 ;   Esta GUI es la que se muestra insertada en la ventana que se seleccionó
@@ -116,7 +117,7 @@ Gui_Home.BackColor := Color_Back
 Gui_Home.MarginX := 21
 Gui_Home.MarginY := 21
 Gui_Home.SetFont("q4 c" Color_TextDefault " s" Gui_SizeText " " Gui_StyleText, Gui_Font)
-Gui_Home.Add("Text", "x0 y0 Background" Color_BackMenu " c" Color_TextMenu " vHome_TitleBar w" Width + Gui_Home.MarginX " h" Size_TitleBar " " Style_Text " Center", "Mi GUI")
+Gui_Home.Add("Text", "x0 y0 Background" Color_BackMenu " c" Color_TextMenu " vHome_TitleBar w" Width + Gui_Home.MarginX " h" Size_TitleBar " " Style_Text " Center")
 Gui_Home.Add("Text", "x" Background_Margin " y+" Background_Margin " Background" Color_Back2 " vHome_Background w" Width + Gui_Home.MarginX / 2 " Center")
 Gui_Home["Home_Background"].GetPos(, &Y,, &H)
 Gui_Home.SetFont("s" Gui_SizeTitle " " Gui_StyleTitle)
@@ -126,9 +127,14 @@ Gui_Home.Add("Text", "BackgroundTrans w" Objets_W " y+" Objets_Margin " vHome_Te
 Gui_Home.Add("Text", "BackgroundTrans w" Objets_W " y+" Objets_Margin, "• El tamaño del alto de la GUI se adaptará automáticamente")
 Gui_Home.Add("Text", "BackgroundTrans w" Objets_W " y+" Objets_Margin, "• Modifica todo editando las variables del principio del script")
 Gui_Home.Add("Text", "BackgroundTrans vHome_SizeController x" Background_Margin + Objets_Margin " y+-" Objets_Margin "  w" Width)
+Gui_Home["Home_TitleBar"].GetPos(,,, &H)
+Gui_Home.Add("Text", "x0 y0 BackgroundTrans c" Color_TextMenu " vHome_TitleBarText w" Width + Gui_Home.MarginX-H " h" Size_TitleBar " " Style_Text " Center", "Mi GUI")
+Gui_Home["Home_TitleBar"].GetPos(&X, &Y, &W,)
+Gui_Home.Add("Text", "Center Background" Color_MenuButton " c" Color_TextMenuButton " vHome_ButtonX x" W-Gui_Home.MarginX-1 " y" Y+5 " w" h-h/3 " h" h-h/3, "✖")
 Gui_Home["Home_SizeController"].GetPos(, &Y,, &H)
 Gui_Home["Home_Background"].Move(,,, H+Y-Gui_Margin*2+Objets_Margin)
-Gui_Home["Home_TitleBar"].OnEvent("Click", Window_Move)
+Gui_Home["Home_TitleBarText"].OnEvent("Click", Window_Move)
+Gui_Home["Home_ButtonX"].OnEvent("Click", Window_Close)
 Gui_Home_ID := Gui_Home.hwnd
 
 
@@ -194,8 +200,9 @@ Gui_Insert_Next(*)
         Gui_Home.Show("w" Width + Gui_Home.MarginX)
         Gui_Home.GetPos(,, &W, &H)
         WinSetRegion "0-0 r" Gui_BorderRadious "-" Gui_BorderRadious " w" W+1 " H" H-Objets_Margin*3, "ahk_id " Gui_Home_ID
-        Gui_Home.Opt("+" InsertType[1] Window)
+        Gui_Home.Opt("+" InsertType Window)
         WinActivate "ahk_id " Window
+        ;OnMessage(0x0002, App_Reload)
     }
     else
     {
@@ -240,6 +247,12 @@ CleanExtension(Text)
 Window_Move(*)
 {
     PostMessage 0xA1, 2
+}
+
+;   Terminar aplicación cuando se cierre la GUI
+Window_Close(*)
+{
+    ExitApp
 }
 
 
