@@ -102,7 +102,7 @@ Gui_Home.BackColor := Color_Back
 Gui_Home.MarginX := 21
 Gui_Home.MarginY := 21
 Gui_Home.SetFont("q4 c" Color_TextDefault " s" Gui_SizeText " " Gui_StyleText, Gui_Font)
-Gui_Home.Add("Text", "x0 y0 Background" Color_BackMenu " c" Color_TextMenu " vHome_TitleBar w" Width + Gui_Home.MarginX " h" Size_TitleBar " " Style_Text " Center", "Insertar en una ventana")
+Gui_Home.Add("Text", "x0 y0 Background" Color_BackMenu " c" Color_TextMenu " vHome_TitleBar w" Width + Gui_Home.MarginX " h" Size_TitleBar " " Style_Text " Center", "Mi GUI")
 Gui_Home.Add("Text", "x" Background_Margin " y+" Background_Margin " Background" Color_Back2 " vHome_Background w" Width + Gui_Home.MarginX / 2 " Center")
 Gui_Home["Home_Background"].GetPos(, &Y,, &H)
 Gui_Home.SetFont("s" Gui_SizeTitle " " Gui_StyleTitle)
