@@ -72,7 +72,7 @@ ColorGradientError := [  ; Degradado de color de rojo claro a verde
     "7F5227",   ; 9         |
     "745828",   ; 10        |
     "6A5D28",   ; 11        ↓
-    "5F6328"    ; 12 → Verde
+    "5F6328"    ; 12 →    Verde
 ]
 
 ;   Teclas de acceso rápido
