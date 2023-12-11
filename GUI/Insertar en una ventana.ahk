@@ -46,7 +46,7 @@ Color_TextButton := "692E17"      ; Texto de los botones secundarios
 Color_Button := "E6B85E"          ; Color del borde de los botones
 Color_MenuButton := "015E61"      ; Color del botón del menú de barra
 Color_TextMenuButton := "02CDD4"  ; Color del símbolo del botón del menú de barra
-ColorGradient := [  ; Degradado de color de verde claro a verde oscuro
+ColorGradientSuccess := [  ; Degradado de color de verde claro a verde oscuro
     "00FFBB",   ; 1  → Verde claro
     "00F2B2",   ; 2         ↑
     "00E6A8",   ; 3         |
@@ -60,9 +60,23 @@ ColorGradient := [  ; Degradado de color de verde claro a verde oscuro
     "00805E",   ; 11        ↓
     "007354"    ; 12 → Verde oscuro
 ]
+ColorGradientError := [  ; Degradado de color de rojo claro a amarillo claro
+    "D42626",   ; 1  → Rojo claro
+    "C92C26",   ; 2         ↑
+    "BF3126",   ; 3         |
+    "B43727",   ; 4         |
+    "A93C27",   ; 5         |
+    "9F4227",   ; 6         |
+    "944727",   ; 7         |
+    "8A4D27",   ; 8         |
+    "7F5227",   ; 9         |
+    "745828",   ; 10        |
+    "6A5D28",   ; 11        ↓
+    "5F6328"    ; 12 → Amarillo claro
+]
 
 ;   Teclas de acceso rápido
-Hotkey_WindowSelect := "LButton" ; Clic izquierdo
+Hotkey_WindowSelect := "LButton" ; Clic izquierdo para seleccionar ventana
 
 
 
@@ -82,7 +96,7 @@ Gui_Insert.SetFont(" c" Color_TextDefault " s" Gui_SizeText " " Gui_StyleText, G
 Gui_Insert.Add("Text", "x0 y0 Background" Color_BackMenu " c" Color_TextMenu " vInsert_TitleBar w" Width + Gui_Insert.MarginX " h" Size_TitleBar " " Style_Text " Center", "Insetrar en una ventana")
 Gui_Insert.Add("Text", "x" Background_Margin " y+" Background_Margin " Background" Color_Back2 " vInsert_Background w" Width + Gui_Insert.MarginX / 2 " h120 Center")
 Gui_Insert["Insert_Background"].GetPos(, &Y,, &H)
-Gui_Insert.Add("Text", "BackgroundTrans w" Width " vInsert_Texto Section x" Background_Margin + Objets_Margin " y" Y + Objets_Margin, "Haz clic en en una ventana para seleccionarla")
+Gui_Insert.Add("Text", "BackgroundTrans w" Width " vInsert_Text Section x" Background_Margin + Objets_Margin " y" Y + Objets_Margin, "Haz clic en en una ventana para seleccionarla")
 Gui_Insert.Add("Text", "Background" Color_Spaces " c" Color_TextAdvice " Center w" Width " vInsert_Window y+" Objets_Margin, "Sin seleccionar")
 Gui_Insert.Add("Button", "Background" Color_Button " y+" Objets_Margin*2 " vInsert_Boton w" Width " Disabled", "Insertar")
 Gui_Insert.Add("Text", "BackgroundTrans vInsert_LastObject x" Background_Margin + Objets_Margin " y+0 w" Width)
@@ -129,26 +143,26 @@ Gui_Home_ID := Gui_Home.hwnd
 ;   Mostrar la ventana de inserción
 Gui_Insert.Show("w" Width + Gui_Insert.MarginX)
 Gui_Insert.GetPos(,, &W, &H)
-
-Reducer := 26
-WinSetRegion "0-0 r" Gui_BorderRadious "-" Gui_BorderRadious " w" W+1 " H" H-Reducer, "ahk_id " Gui_Insert_ID
+WinSetRegion "0-0 r" Gui_BorderRadious "-" Gui_BorderRadious " w" W+1 " H" H-Objets_Margin*4, "ahk_id " Gui_Insert_ID
 Hotkey "~" Hotkey_WindowSelect, WindowSelect, "On"
 return
 
 ;   Selecionar una ventana y poner el nombre sin la extensión .exe en el cuadro
 WindowSelect(*)
 {
+    Global Gui_Insert_ID, Window, WindowName
     MouseGetPos ,, &Window_ID
-    if !(Window_ID = Gui_Insert.hwnd or Window_ID = "")
+    if !(Window_ID = Gui_Insert_ID or Window_ID = "")
     {
         WindowName := UpperFirst(CleanExtension(WinGetProcessName("ahk_id " Window_ID)))
         Gui_Insert["Insert_Window"].Text := WindowName
         Gui_Insert["Insert_Window"].setFont("Bold")
-        Gui_Insert["Insert_Texto"].Text := "Para reemplazar la ventana haz clic en otra"
+        Gui_Insert["Insert_Text"].Text := "Para reemplazar la ventana haz clic en otra"
+        Gui_Insert["Insert_Text"].SetFont("c" Color_TextDefault)
         Gui_Home["Home_Text"].Text := "• Esta GUI ahora pertenece a la ventana " WindowName
-        Global Window := Window_ID
+        Window := Window_ID
         Gui_Insert["Insert_Boton"].Enabled := true
-        for Color in ColorGradient
+        for Color in ColorGradientSuccess
         {
             if (WinExist("ahk_id " Gui_Insert_ID))
             {
@@ -170,13 +184,35 @@ WindowSelect(*)
 
 Gui_Insert_Next(*)
 {
-    Gui_Insert["Insert_Boton"].Enabled := false
-    Hotkey "~" Hotkey_WindowSelect, WindowSelect, "Off"
-    Gui_Insert.Destroy()
-    Gui_Home.Show("w" Width + Gui_Home.MarginX)
-    Gui_Home.GetPos(,, &W, &H)
-    WinSetRegion "0-0 r" Gui_BorderRadious "-" Gui_BorderRadious " w" W+1 " H" H-Objets_Margin*3, "ahk_id " Gui_Home_ID
-    Gui_Home.Opt("+" InsertType[1] Window)
+    ;   Mostrar advertencia si la ventana que se seleccionó ya no está disponible
+    Global Gui_Insert_ID, Window
+    if (WinExist("ahk_id " Window))
+    {
+        Gui_Insert["Insert_Boton"].Enabled := false
+        Hotkey "~" Hotkey_WindowSelect, WindowSelect, "Off"
+        Gui_Insert.Destroy()
+        Gui_Home.Show("w" Width + Gui_Home.MarginX)
+        Gui_Home.GetPos(,, &W, &H)
+        WinSetRegion "0-0 r" Gui_BorderRadious "-" Gui_BorderRadious " w" W+1 " H" H-Objets_Margin*3, "ahk_id " Gui_Home_ID
+        Gui_Home.Opt("+" InsertType[1] Window)
+        WinActivate "ahk_id " Window
+    }
+    else
+    {
+        Gui_Insert["Insert_Boton"].Enabled := false
+        Gui_Insert["Insert_Text"].Text := "La ventana que seleccionaste ya no existe, selecciona otra"
+        Gui_Insert["Insert_Text"].SetFont("c" Color_TextError)
+        Gui_Insert["Insert_Window"].Text := "Sin seleccionar"
+        Gui_Insert["Insert_Window"].setFont("Norm")
+        for Color in ColorGradientError
+        {
+            if (WinExist("ahk_id " Gui_Insert_ID))
+            {
+                Gui_Insert["Insert_Window"].SetFont("c" Color)
+                sleep 39
+            }
+        }
+    }
 }
 
 
