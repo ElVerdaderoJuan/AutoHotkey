@@ -27,8 +27,9 @@ Background_Margin := 6
 Objets_Margin := 6
 Objets_W := Width-Objets_Margin/2
 Window := "A"
-InsertType := "Owner"       ; Recomendado, independiente de la ventana pero se minimiza y se abre junto con ella
-;InsertType := "Parent"     ; Depende de la ventana, se mueve, minimiza, se abre y se cierra junto con ella, y solo es visible dentro de la ventana
+MouseIsHover := false
+InsertType := "Owner"       ; Recomendado, foco independiente de la ventana pero se minimiza, se abre y se cierra junto con ella
+;InsertType := "Parent"     ; El foco de la GUI y de la ventana están sincronizados, se mueve, se minimiza, se abre y se cierra junto con ella, y solo es visible dentro de los límites la ventana propietaria
 
 ;   Colores de las GUIs
 Color_Back := "00A192"            ; Fondo
@@ -106,10 +107,11 @@ Gui_Insert["Insert_Window"].GetPos(,,, &H)
 Gui_Insert["Insert_Window"].Move(,,, H*1.4)
 Gui_Insert["Insert_LastObject"].GetPos(, &Y,, &H)
 Gui_Insert["Insert_Background"].Move(,,, H+Y-Gui_Margin*2)
-Gui_Insert_ID := Gui_Insert.hwnd
 Gui_Insert["Insert_TitleBarText"].OnEvent("Click", Window_Move)
 Gui_Insert["Insert_ButtonX"].OnEvent("Click", Window_Close)
 Gui_Insert["Insert_Boton"].OnEvent("Click", Gui_Insert_Next)
+Gui_Insert_ID := Gui_Insert.hwnd
+Gui_Insert_ButtonX := Gui_Insert["Insert_ButtonX"].hwnd
 
 ;   Esta GUI es la que se muestra insertada en la ventana que se seleccionó
 Gui_Home := Gui("-Caption LastFound")
@@ -135,7 +137,9 @@ Gui_Home["Home_SizeController"].GetPos(, &Y,, &H)
 Gui_Home["Home_Background"].Move(,,, H+Y-Gui_Margin*2+Objets_Margin)
 Gui_Home["Home_TitleBarText"].OnEvent("Click", Window_Move)
 Gui_Home["Home_ButtonX"].OnEvent("Click", Window_Close)
+Gui_Home["Home_ButtonX"].GetPos(&Home_ButtonX_X, &Home_ButtonX_Y, &Home_ButtonX_W, &Home_ButtonX_H)
 Gui_Home_ID := Gui_Home.hwnd
+Gui_Home_ButtonX := Gui_Home["Home_ButtonX"].hwnd
 
 
 
@@ -148,6 +152,7 @@ Gui_Home_ID := Gui_Home.hwnd
 
 ;   Mostrar la ventana de inserción
 Gui_Insert.Show("w" Width + Gui_Insert.MarginX)
+OnMessage 0x0200, MouseHover
 Gui_Insert.GetPos(,, &W, &H)
 WinSetRegion "0-0 r" Gui_BorderRadious "-" Gui_BorderRadious " w" W+1 " H" H-Objets_Margin*4, "ahk_id " Gui_Insert_ID
 Hotkey "~" Hotkey_WindowSelect, WindowSelect, "On"
@@ -202,7 +207,6 @@ Gui_Insert_Next(*)
         WinSetRegion "0-0 r" Gui_BorderRadious "-" Gui_BorderRadious " w" W+1 " H" H-Objets_Margin*3, "ahk_id " Gui_Home_ID
         Gui_Home.Opt("+" InsertType Window)
         WinActivate "ahk_id " Window
-        ;OnMessage(0x0002, App_Reload)
     }
     else
     {
@@ -255,11 +259,47 @@ Window_Close(*)
     ExitApp
 }
 
-
-
-
-
-
-;   Acciones de acceso rápido temporales
-NumpadAdd::Reload
-NumpadAdd & ~Esc::ExitApp
+;   MouseHover en botón de cerrar de las GUIs (Llamado por onMessage de Windows)
+MouseHover(wParam, lParam, msg, hwnd)
+{
+    Global MouseIsHover
+    ThisGui := GuiFromHwnd(hwnd)
+    Control := GuiCtrlFromHwnd(hwnd)
+    
+    if (Control)
+    {
+        Control_ID := Control.hwnd
+        if (MouseIsHover = false and (Control_ID = Gui_Home_ButtonX or Control_ID = Gui_Insert_ButtonX))
+        {
+            Control.Opt("+Background" Color_TextError)
+            Control.Visible := false
+            Control.Visible := true
+            MouseIsHover := true
+        }
+    }
+    else
+    {
+        ThisGui_ID := ThisGui.hwnd
+        if (MouseIsHover = true and IsObject(ThisGui))
+        {
+            Switch (ThisGui_ID)
+            {
+                Case Gui_Home_ID:
+                {
+                    Gui_Home["Home_ButtonX"].Opt("+Background" Color_MenuButton)
+                    Gui_Home["Home_ButtonX"].Visible := false
+                    Gui_Home["Home_ButtonX"].Visible := true
+                    MouseIsHover := false
+                }
+                Case Gui_Insert_ID:
+                {
+                    Gui_Insert["Insert_ButtonX"].Opt("+Background" Color_MenuButton)
+                    Gui_Insert["Insert_ButtonX"].Visible := false
+                    Gui_Insert["Insert_ButtonX"].Visible := true
+                    MouseIsHover := false
+                }
+                
+            }
+        }
+    }
+}
