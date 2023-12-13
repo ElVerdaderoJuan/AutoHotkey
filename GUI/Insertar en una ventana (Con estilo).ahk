@@ -266,9 +266,11 @@ MouseHover(wParam, lParam, msg, hwnd)
     ThisGui := GuiFromHwnd(hwnd)
     Control := GuiCtrlFromHwnd(hwnd)
     
-    if (Control)
+    if (Control) ; Si el mouse está encima de un control dentro de la GUI
     {
         Control_ID := Control.hwnd
+        Static LastControl ; Guarda el objeto (El control) dentro de esta función
+        LastControl := GuiCtrlFromHwnd(hwnd) ; Cambia el valor del objeto
         if (MouseIsHover = false and (Control_ID = Gui_Home_ButtonX or Control_ID = Gui_Insert_ButtonX))
         {
             Control.Opt("+Background" Color_TextError)
@@ -277,29 +279,15 @@ MouseHover(wParam, lParam, msg, hwnd)
             MouseIsHover := true
         }
     }
-    else
+    else ; Si el mouse no está encima de un control dentro de la GUI
     {
         ThisGui_ID := ThisGui.hwnd
         if (MouseIsHover = true and IsObject(ThisGui))
         {
-            Switch (ThisGui_ID)
-            {
-                Case Gui_Home_ID:
-                {
-                    Gui_Home["Home_ButtonX"].Opt("+Background" Color_MenuButton)
-                    Gui_Home["Home_ButtonX"].Visible := false
-                    Gui_Home["Home_ButtonX"].Visible := true
-                    MouseIsHover := false
-                }
-                Case Gui_Insert_ID:
-                {
-                    Gui_Insert["Insert_ButtonX"].Opt("+Background" Color_MenuButton)
-                    Gui_Insert["Insert_ButtonX"].Visible := false
-                    Gui_Insert["Insert_ButtonX"].Visible := true
-                    MouseIsHover := false
-                }
-                
-            }
+            LastControl.Opt("+Background" Color_MenuButton)
+            LastControl.Visible := false
+            LastControl.Visible := true
+            MouseIsHover := false
         }
     }
 }
