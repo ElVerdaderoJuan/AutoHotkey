@@ -27,6 +27,7 @@ Background_Margin := 6
 Objets_Margin := 6
 Objets_W := Width-Objets_Margin/2
 Window := "A"
+MouseHover_ButtonX := Array()
 InsertType := "Owner"       ; Recomendado, foco independiente de la ventana pero se minimiza, se abre y se cierra junto con ella
 ;InsertType := "Parent"     ; El foco de la GUI y de la ventana están sincronizados, se mueve, se minimiza, se abre y se cierra junto con ella, y solo es visible dentro de los límites la ventana propietaria
 
@@ -111,6 +112,7 @@ Gui_Insert["Insert_ButtonX"].OnEvent("Click", Window_Close)
 Gui_Insert["Insert_Boton"].OnEvent("Click", Gui_Insert_Next)
 Gui_Insert_ID := Gui_Insert.hwnd
 Gui_Insert_ButtonX := Gui_Insert["Insert_ButtonX"].hwnd
+MouseHover_ButtonX.Push(Gui_Insert["Insert_ButtonX"].hwnd) ; Agregar ID del control a la lista de controles de GUI a los que afectará el MouseHover de color rojo
 
 ;   Esta GUI es la que se muestra insertada en la ventana que se seleccionó
 Gui_Home := Gui("-Caption LastFound")
@@ -139,6 +141,7 @@ Gui_Home["Home_ButtonX"].OnEvent("Click", Window_Close)
 Gui_Home["Home_ButtonX"].GetPos(&Home_ButtonX_X, &Home_ButtonX_Y, &Home_ButtonX_W, &Home_ButtonX_H)
 Gui_Home_ID := Gui_Home.hwnd
 Gui_Home_ButtonX := Gui_Home["Home_ButtonX"].hwnd
+MouseHover_ButtonX.Push(Gui_Home["Home_ButtonX"].hwnd) ; Agregar ID del control a la lista de controles de GUI a los que afectará el MouseHover de color rojo
 
 
 
@@ -252,38 +255,48 @@ Window_Move(*)
     PostMessage 0xA1, 2
 }
 
-;   Terminar aplicación cuando se cierre la GUI
+;   Terminar aplicación al cerrar la GUI
 Window_Close(*)
 {
     ExitApp
 }
 
-;   MouseHover en botón de cerrar de las GUIs (Llamado por onMessage de Windows)
+;   Comprobar si un elemento existe dentro de una lista
+isInList(Element, List)
+{
+    for ElementFound in List
+    {
+        if (ElementFound = Element)
+        {
+            return true
+        }
+    }
+    return false
+}
+
+;   MouseHover en botón de cerrar de las GUIs (Llamado por onMessage)
 MouseHover(wParam, lParam, msg, hwnd)
 {
     Control := GuiCtrlFromHwnd(hwnd)
-    static MouseIsHover := false ; El valor por defecto es 'false' y mantiene su valor en esta función
-    if (Control) ; Si el mouse está encima de un control dentro de la GUI
+    static MouseIsHover := false ; El primer valor por defecto es 'false' y mantiene su valor en esta función
+    if (Control) ; Comprobar si el mouse está encima de un control dentro de la GUI
     {
         Control_ID := Control.hwnd
-        if (MouseIsHover = false and (Control_ID = Gui_Home_ButtonX or Control_ID = Gui_Insert_ButtonX))
+        if (MouseIsHover = false and (isInList(Control_ID, MouseHover_ButtonX))) ; Comprobar que el ID del control detectado esté en la lista de controles a los que se les debe hacer el 'MouseHover'
         {
-            Static LastControl ; Mantener el objeto (El control) dentro de esta función
-            LastControl := GuiCtrlFromHwnd(hwnd) ; Actualiza el valor del objeto
+            Static LastControl ; Mantener el control (El objeto) dentro de esta función
+            LastControl := GuiCtrlFromHwnd(hwnd) ; Actualiza el objeto
             Control.Opt("+Background" Color_TextError)
             Control.Visible := false
             Control.Visible := true
             MouseIsHover := true
         }
     }
-    else ; Si el mouse no está encima de un control dentro de la GUI
+    else if (MouseIsHover)
     {
-        if (MouseIsHover)
-        {
-            LastControl.Opt("+Background" Color_MenuButton)
-            LastControl.Visible := false
-            LastControl.Visible := true
-            MouseIsHover := false
-        }
+        LastControl.Opt("+Background" Color_MenuButton)
+        LastControl.Visible := false
+        LastControl.Visible := true
+        MouseIsHover := false
     }
 }
