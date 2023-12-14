@@ -27,7 +27,6 @@ Background_Margin := 6
 Objets_Margin := 6
 Objets_W := Width-Objets_Margin/2
 Window := "A"
-MouseIsHover := false
 InsertType := "Owner"       ; Recomendado, foco independiente de la ventana pero se minimiza, se abre y se cierra junto con ella
 ;InsertType := "Parent"     ; El foco de la GUI y de la ventana están sincronizados, se mueve, se minimiza, se abre y se cierra junto con ella, y solo es visible dentro de los límites la ventana propietaria
 
@@ -262,17 +261,15 @@ Window_Close(*)
 ;   MouseHover en botón de cerrar de las GUIs (Llamado por onMessage de Windows)
 MouseHover(wParam, lParam, msg, hwnd)
 {
-    Global MouseIsHover
-    ThisGui := GuiFromHwnd(hwnd)
     Control := GuiCtrlFromHwnd(hwnd)
-    
+    static MouseIsHover := false ; El valor por defecto es 'false' y mantiene su valor en esta función
     if (Control) ; Si el mouse está encima de un control dentro de la GUI
     {
         Control_ID := Control.hwnd
-        Static LastControl ; Guarda el objeto (El control) dentro de esta función
-        LastControl := GuiCtrlFromHwnd(hwnd) ; Cambia el valor del objeto
         if (MouseIsHover = false and (Control_ID = Gui_Home_ButtonX or Control_ID = Gui_Insert_ButtonX))
         {
+            Static LastControl ; Mantener el objeto (El control) dentro de esta función
+            LastControl := GuiCtrlFromHwnd(hwnd) ; Actualiza el valor del objeto
             Control.Opt("+Background" Color_TextError)
             Control.Visible := false
             Control.Visible := true
@@ -281,8 +278,7 @@ MouseHover(wParam, lParam, msg, hwnd)
     }
     else ; Si el mouse no está encima de un control dentro de la GUI
     {
-        ThisGui_ID := ThisGui.hwnd
-        if (MouseIsHover = true and IsObject(ThisGui))
+        if (MouseIsHover)
         {
             LastControl.Opt("+Background" Color_MenuButton)
             LastControl.Visible := false
