@@ -1,6 +1,7 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
-CoordMode "Pixel", "Screen" ; La posición del mouse se obtiene en relación a la pantalla
+#Include TextControl.ahk
+#Include GuiControl.ahk
 
 
 
@@ -27,25 +28,25 @@ Background_Margin := 6
 Objets_Margin := 6
 Objets_W := Width-Objets_Margin/2
 Window := "A"
-MouseHover_ButtonX := Array()
 InsertType := "Owner"       ; Recomendado, foco independiente de la ventana pero se minimiza, se abre y se cierra junto con ella
 ;InsertType := "Parent"     ; El foco de la GUI y de la ventana están sincronizados, se mueve, se minimiza, se abre y se cierra junto con ella, y solo es visible dentro de los límites la ventana propietaria
 
 ;   Colores de las GUIs
-Color_Back := "00A192"            ; Fondo
-Color_Back2 := "FDE8BD"           ; Fondo encima del fondo
-Color_BackMenu := "01787C"        ; Fondo del MenuBar
-Color_TextMenu := "F5E8BF"        ; Texto del MenuBAr
-Color_TextDefault := "AB5533"     ; Texto por defecto
-Color_Spaces := "FFFAF0"          ; Fondo de espacios para poner texto llamativo o que indica algo
-Color_TextAdvice := "5F6328"      ; Texto de aviso o sugerencia
-Color_Success := "007354"         ; Texto de aviso o sugerencia
-Color_TextError := "D42626"       ; Texto de error
-Color_TextButton := "692E17"      ; Texto de los botones secundarios
-Color_Button := "E6B85E"          ; Color del borde de los botones
-Color_MenuButton := "015E61"      ; Color del botón del menú de barra
-Color_TextMenuButton := "02CDD4"  ; Color del símbolo del botón del menú de barra
-ColorGradientSuccess := [  ; Degradado de color de verde claro a verde oscuro
+Color_Back := "00A192"              ; Fondo
+Color_Back2 := "FDE8BD"             ; Fondo encima del fondo
+Color_BackMenu := "01787C"          ; Fondo del MenuBar
+Color_TextMenu := "F5E8BF"          ; Texto del MenuBAr
+Color_TextDefault := "AB5533"       ; Texto por defecto
+Color_Spaces := "FFFAF0"            ; Fondo de espacios para poner texto llamativo o que indica algo
+Color_TextAdvice := "5F6328"        ; Texto de aviso o sugerencia
+Color_Success := "007354"           ; Texto de aviso o sugerencia
+Color_TextError := "D42626"         ; Texto de error
+Color_TextButton := "692E17"        ; Texto de los botones secundarios
+Color_Button := "E6B85E"            ; Borde de los botones
+Color_MenuButton := "015E61"        ; Botón del menú de barra
+Color_TextMenuButton := "02CDD4"    ; Símbolo del botón del menú de barra
+Color_MenuButtonX_MouseHover := "D42626"  ; Botón de cerrar cuando hay MouseHover
+ColorGradientSuccess := [  ; Degradado de verde claro a verde oscuro
     "00FFBB",   ; 1  → Verde claro
     "00F2B2",   ; 2         ↑
     "00E6A8",   ; 3         |
@@ -59,7 +60,7 @@ ColorGradientSuccess := [  ; Degradado de color de verde claro a verde oscuro
     "00805E",   ; 11        ↓
     "007354"    ; 12 → Verde oscuro
 ]
-ColorGradientError := [  ; Degradado de color de rojo claro a verde
+ColorGradientError := [  ; Degradado de rojo claro a verde
     "D42626",   ; 1  → Rojo claro
     "C92C26",   ; 2         ↑
     "BF3126",   ; 3         |
@@ -76,6 +77,13 @@ ColorGradientError := [  ; Degradado de color de rojo claro a verde
 
 ;   Teclas de acceso rápido
 Hotkey_WindowSelect := "LButton" ; Clic izquierdo para seleccionar ventana
+
+
+
+
+
+MouseHoverControl := MouseHover()
+
 
 
 
@@ -112,7 +120,7 @@ Gui_Insert["Insert_ButtonX"].OnEvent("Click", Window_Close)
 Gui_Insert["Insert_Boton"].OnEvent("Click", Gui_Insert_Next)
 Gui_Insert_ID := Gui_Insert.hwnd
 Gui_Insert_ButtonX := Gui_Insert["Insert_ButtonX"].hwnd
-MouseHover_ButtonX.Push(Gui_Insert["Insert_ButtonX"].hwnd) ; Agregar ID del control a la lista de controles de GUI a los que afectará el MouseHover de color rojo
+MouseHoverControl.AddControl(Gui_Insert["Insert_ButtonX"].hwnd)
 
 ;   Esta GUI es la que se muestra insertada en la ventana que se seleccionó
 Gui_Home := Gui("-Caption LastFound")
@@ -141,7 +149,7 @@ Gui_Home["Home_ButtonX"].OnEvent("Click", Window_Close)
 Gui_Home["Home_ButtonX"].GetPos(&Home_ButtonX_X, &Home_ButtonX_Y, &Home_ButtonX_W, &Home_ButtonX_H)
 Gui_Home_ID := Gui_Home.hwnd
 Gui_Home_ButtonX := Gui_Home["Home_ButtonX"].hwnd
-MouseHover_ButtonX.Push(Gui_Home["Home_ButtonX"].hwnd) ; Agregar ID del control a la lista de controles de GUI a los que afectará el MouseHover de color rojo
+MouseHoverControl.AddControl(Gui_Home["Home_ButtonX"].hwnd)
 
 
 
@@ -154,7 +162,6 @@ MouseHover_ButtonX.Push(Gui_Home["Home_ButtonX"].hwnd) ; Agregar ID del control 
 
 ;   Mostrar la ventana de inserción
 Gui_Insert.Show("w" Width + Gui_Insert.MarginX)
-OnMessage 0x0200, MouseHover
 Gui_Insert.GetPos(,, &W, &H)
 WinSetRegion "0-0 r" Gui_BorderRadious "-" Gui_BorderRadious " w" W+1 " H" H-Objets_Margin*4, "ahk_id " Gui_Insert_ID
 Hotkey "~" Hotkey_WindowSelect, WindowSelect, "On"
@@ -198,7 +205,6 @@ WindowSelect(*)
 Gui_Insert_Next(*)
 {
     ;   Mostrar advertencia si la ventana que se seleccionó ya no está disponible
-    Global Gui_Insert_ID, Window
     if (WinExist("ahk_id " Window))
     {
         Gui_Insert["Insert_Boton"].Enabled := false
@@ -225,78 +231,5 @@ Gui_Insert_Next(*)
                 sleep 39
             }
         }
-    }
-}
-
-
-
-
-
-
-;   #######################################################
-;   #########   Funciones de propósito general    #########
-;   #######################################################
-
-; Convertir primera letra de alguna cadena en mayúscula
-UpperFirst(Text)
-{
-    return StrUpper(SubStr(Text, 1, 1)) SubStr(Text, 2)
-}
-
-;   Limpiar extensión de una cadena (.exe .io .pdf y todo lo que esté desde el punto al final de la cadena hacia adelante)
-CleanExtension(Text)
-{
-    return SubStr(Text, 1, InStr(Text, ".",, -1, -1) - 1)
-}
-
-;   Mover la ventana activa
-Window_Move(*)
-{
-    PostMessage 0xA1, 2
-}
-
-;   Terminar aplicación al cerrar la GUI
-Window_Close(*)
-{
-    ExitApp
-}
-
-;   Comprobar si un elemento existe dentro de una lista
-isInList(Element, List)
-{
-    for ElementFound in List
-    {
-        if (ElementFound = Element)
-        {
-            return true
-        }
-    }
-    return false
-}
-
-;   MouseHover en botón de cerrar de las GUIs (Llamado por onMessage)
-MouseHover(wParam, lParam, msg, hwnd)
-{
-    Control := GuiCtrlFromHwnd(hwnd)
-    static MouseIsHover := false ; El primer valor por defecto es 'false' y mantiene su valor en esta función
-    if (Control) ; Comprobar si el mouse está encima de un control dentro de la GUI
-    {
-        Control_ID := Control.hwnd
-        if (MouseIsHover = false and (isInList(Control_ID, MouseHover_ButtonX))) ; Comprobar que el ID del control detectado esté en la lista de controles a los que se les debe hacer el 'MouseHover'
-        {
-            Static LastControl ; Mantener el control (El objeto) dentro de esta función
-            LastControl := GuiCtrlFromHwnd(hwnd) ; Actualiza el objeto
-            Control.Opt("+Background" Color_TextError)
-            Control.Visible := false
-            Control.Visible := true
-            MouseIsHover := true
-        }
-    }
-    else if (MouseIsHover)
-    {
-        LastControl.Opt("+Background" Color_MenuButton)
-        LastControl.Visible := false
-        LastControl.Visible := true
-        MouseIsHover := false
     }
 }
