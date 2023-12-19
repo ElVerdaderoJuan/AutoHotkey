@@ -1,16 +1,14 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
 #Include TextControl.ahk
-#Include GuiControl.ahk
+#Include GuiEvents.ahk
 
 
 
 
-
-
-;   #################################
-;   #########   Variables   #########
-;   #################################
+;   ┏━━━━━━━━━━━━━━━━━━━━━━┓
+;   ┃       Variables      ┃
+;   ┗━━━━━━━━━━━━━━━━━━━━━━┛
 
 ;   GUIs
 Gui_BorderRadious := 15
@@ -28,6 +26,7 @@ Background_Margin := 6
 Objets_Margin := 6
 Objets_W := Width-Objets_Margin/2
 Window := "A"
+Control := "xD"
 InsertType := "Owner"       ; Recomendado, foco independiente de la ventana pero se minimiza, se abre y se cierra junto con ella
 ;InsertType := "Parent"     ; El foco de la GUI y de la ventana están sincronizados, se mueve, se minimiza, se abre y se cierra junto con ella, y solo es visible dentro de los límites la ventana propietaria
 
@@ -43,7 +42,7 @@ Color_Success := "007354"           ; Texto de aviso o sugerencia
 Color_TextError := "D42626"         ; Texto de error
 Color_TextButton := "692E17"        ; Texto de los botones secundarios
 Color_Button := "E6B85E"            ; Borde de los botones
-Color_MenuButton := "015E61"        ; Botón del menú de barra
+Color_MenuButtonX := "015E61"        ; Botón del menú de barra
 Color_TextMenuButton := "02CDD4"    ; Símbolo del botón del menú de barra
 Color_MenuButtonX_MouseHover := "D42626"  ; Botón de cerrar cuando hay MouseHover
 ColorGradientSuccess := [  ; Degradado de verde claro a verde oscuro
@@ -82,17 +81,29 @@ Hotkey_WindowSelect := "LButton" ; Clic izquierdo para seleccionar ventana
 
 
 
-MouseHoverControl := MouseHover()
+
+;   ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+;   ┃   MouseHover para las GUIs    ┃
+;   ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+;   Crear instancias
+Mouse := MouseHover()
+
+;   Activar acciones Hover al recibir el ID del control que está debajo del mouse
+MouseHoverControls()
+{
+    ;MyInstance.Opt(DefaultOptions, MouseHoverOptions)
+    Mouse.Opt("+Background" Color_MenuButtonX, "+Background" Color_MenuButtonX_MouseHover)
+}
 
 
 
 
 
 
-
-;   #########################################
-;   #########   Creación de GUIs    #########
-;   #########################################
+;   ┏━━━━━━━━━━━━━━━━━━━━━━━┓
+;   ┃   Creación de GUIs    ┃
+;   ┗━━━━━━━━━━━━━━━━━━━━━━━┛
 
 ;   En esta GUI seleccionas en qué ventana quieres insetar la GUI
 Gui_Insert := Gui("-Caption LastFound AlwaysOnTop")
@@ -110,7 +121,7 @@ Gui_Insert.Add("Text", "BackgroundTrans vInsert_LastObject x" Background_Margin 
 Gui_Insert["Insert_TitleBar"].GetPos(,,, &H)
 Gui_Insert.Add("Text", "x0 y0 BackgroundTrans c" Color_TextMenu " vInsert_TitleBarText w" Width + Gui_Insert.MarginX-H " h" Size_TitleBar " " Style_Text " Center", "Insetrar en una ventana")
 Gui_Insert["Insert_TitleBar"].GetPos(&X, &Y, &W,)
-Gui_Insert.Add("Text", "Center Background" Color_MenuButton " c" Color_TextMenuButton " vInsert_ButtonX x" W-Gui_Insert.MarginX-1 " y" Y+5 " w" h-h/3 " h" h-h/3, "✖")
+Gui_Insert.Add("Text", "Center Background" Color_MenuButtonX " c" Color_TextMenuButton " vInsert_ButtonX x" W-Gui_Insert.MarginX-1 " y" Y+5 " w" h-h/3 " h" h-h/3, "✖")
 Gui_Insert["Insert_Window"].GetPos(,,, &H)
 Gui_Insert["Insert_Window"].Move(,,, H*1.4)
 Gui_Insert["Insert_LastObject"].GetPos(, &Y,, &H)
@@ -120,7 +131,7 @@ Gui_Insert["Insert_ButtonX"].OnEvent("Click", Window_Close)
 Gui_Insert["Insert_Boton"].OnEvent("Click", Gui_Insert_Next)
 Gui_Insert_ID := Gui_Insert.hwnd
 Gui_Insert_ButtonX := Gui_Insert["Insert_ButtonX"].hwnd
-MouseHoverControl.AddControl(Gui_Insert["Insert_ButtonX"].hwnd)
+Mouse.AddControl(Gui_Insert["Insert_ButtonX"].hwnd)
 
 ;   Esta GUI es la que se muestra insertada en la ventana que se seleccionó
 Gui_Home := Gui("-Caption LastFound")
@@ -141,7 +152,7 @@ Gui_Home.Add("Text", "BackgroundTrans vHome_SizeController x" Background_Margin 
 Gui_Home["Home_TitleBar"].GetPos(,,, &H)
 Gui_Home.Add("Text", "x0 y0 BackgroundTrans c" Color_TextMenu " vHome_TitleBarText w" Width + Gui_Home.MarginX-H " h" Size_TitleBar " " Style_Text " Center", "Mi GUI")
 Gui_Home["Home_TitleBar"].GetPos(&X, &Y, &W,)
-Gui_Home.Add("Text", "Center Background" Color_MenuButton " c" Color_TextMenuButton " vHome_ButtonX x" W-Gui_Home.MarginX-1 " y" Y+5 " w" h-h/3 " h" h-h/3, "✖")
+Gui_Home.Add("Text", "Center Background" Color_MenuButtonX " c" Color_TextMenuButton " vHome_ButtonX x" W-Gui_Home.MarginX-1 " y" Y+5 " w" h-h/3 " h" h-h/3, "✖")
 Gui_Home["Home_SizeController"].GetPos(, &Y,, &H)
 Gui_Home["Home_Background"].Move(,,, H+Y-Gui_Margin*2+Objets_Margin)
 Gui_Home["Home_TitleBarText"].OnEvent("Click", Window_Move)
@@ -149,16 +160,16 @@ Gui_Home["Home_ButtonX"].OnEvent("Click", Window_Close)
 Gui_Home["Home_ButtonX"].GetPos(&Home_ButtonX_X, &Home_ButtonX_Y, &Home_ButtonX_W, &Home_ButtonX_H)
 Gui_Home_ID := Gui_Home.hwnd
 Gui_Home_ButtonX := Gui_Home["Home_ButtonX"].hwnd
-MouseHoverControl.AddControl(Gui_Home["Home_ButtonX"].hwnd)
+Mouse.AddControl(Gui_Home["Home_ButtonX"].hwnd)
 
 
 
 
 
 
-;   ###########################################################################
-;   #########   Inicio - Mostrar ventana de selección de ventanas     #########
-;   ###########################################################################
+;   ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+;   ┃   Inicio - Seleccionar ventanas   ┃
+;   ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 ;   Mostrar la ventana de inserción
 Gui_Insert.Show("w" Width + Gui_Insert.MarginX)
@@ -198,9 +209,9 @@ WindowSelect(*)
 
 
 
-;   #############################################################################################
-;   #########   Mostrar la siguiente GUI insertada en la ventana que se seleccionó      #########
-;   #############################################################################################
+;   ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+;   ┃   Mostrar la siguiente GUI dentro de la ventana   ┃
+;   ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 Gui_Insert_Next(*)
 {
