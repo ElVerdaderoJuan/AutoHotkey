@@ -1,18 +1,10 @@
+GuiEvent := GuiEvents()
+
 ;   Mover la ventana activa
 Window_Move(*)
 {
     PostMessage 0xA1, 2
 }
-
-;   Terminar aplicación al cerrar la GUI
-Window_Close(*)
-{
-    ExitApp
-}
-
-;   MouseHover en botón de cerrar de las GUIs (Llamado por onMessage)
-OnMessage 0x0200, SendToMouseHoverControls
-OnMessage 0x02A3, SendToMouseHoverControls
 
 SendToMouseHoverControls(wParam, lParam, msg, hwnd)
 {
@@ -20,15 +12,26 @@ SendToMouseHoverControls(wParam, lParam, msg, hwnd)
     MouseHoverControls()
 }
 
+Class GuiEvents
+{
+    Move(*)
+    {
+        PostMessage 0xA1, 2
+    }
+}
+
 ;   Clase para crear los MouseHover's
 Class MouseHover
 {
     __New()
     {
+        ; Recibir mensajes de Windows en las ventnaas
+        OnMessage 0x0200, SendToMouseHoverControls
+        OnMessage 0x02A3, SendToMouseHoverControls
         This.List := Array()
     }
 
-    AddControl(hwnd)
+    Add(hwnd)
     {
         This.List.Push hwnd
     }
@@ -37,13 +40,14 @@ Class MouseHover
     {
         Global MouseEvents_GuiControlHwnd
         Static Control ; Recordar el control (El objeto) dentro de esta función
-        static MouseIsHover := false ; El valor que recibe por primera vez es 'false' y recuerda sus valores en esta función
-        static MouseIsHoverOther := false ; El valor que recibe por primera vez es 'false' y recuerda sus valores en esta función
+        ;Static thisGui
+        Static MouseIsHover := false ; El valor que recibe por primera vez es 'false' y recuerda sus valores en esta función
+        Static MouseIsHoverOther := false ; El valor que recibe por primera vez es 'false' y recuerda sus valores en esta función
         if (GuiCtrlFromHwnd(MouseEvents_GuiControlHwnd)) ; Comprobar si el mouse está encima de un control
         {
             if (!MouseIsHover) ; Comprobar que el ID del control detectado está en la lista de controles para el MouseHover
             {
-                if (IsInList(MouseEvents_GuiControlHwnd, This.List))
+                if (This.IsInList())
                 {
                     Control := GuiCtrlFromHwnd(MouseEvents_GuiControlHwnd) ; Actualiza el objeto
                     UpdateControl(NewOptions)
@@ -51,14 +55,16 @@ Class MouseHover
                     MouseIsHoverOther := false
                 }
             }
-            else if (!MouseIsHoverOther and !(IsInList(MouseEvents_GuiControlHwnd, This.List)))
+            else if (!MouseIsHoverOther and (MouseEvents_GuiControlHwnd != Control.hwnd))
             {
+                
                 UpdateControl(DefaultOptions)
                 MouseIsHoverOther := true ; Establecer como verdadero indicando que no se debe repetir esto
             }
         }
         else if (MouseIsHover)
         {
+            
             UpdateControl(DefaultOptions)
             MouseIsHover := false
         }
@@ -69,17 +75,19 @@ Class MouseHover
             Control.Visible := false
             Control.Visible := true
         }
+    }
 
-        IsInList(Element, List)
+    IsInList(Element := MouseEvents_GuiControlHwnd, List := this.List)
+    {
+        ;Global MouseEventsListIndex := 0
+        for ElementFound in List
         {
-            for ElementFound in List
+            if (ElementFound = Element)
             {
-                if (ElementFound = Element)
-                {
-                    return true
-                }
+                ;MouseEventsListIndex++
+                return true
             }
-            return false
         }
+        return false
     }
 }
