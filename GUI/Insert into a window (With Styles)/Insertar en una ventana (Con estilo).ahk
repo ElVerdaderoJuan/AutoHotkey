@@ -87,13 +87,13 @@ Hotkey_WindowSelect := "LButton" ; Clic izquierdo para seleccionar ventana
 ;   ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 ;   Crear instancias
-Mouse := MouseHover()
+Hover := MouseHover()
 
 ;   Activar acciones Hover al recibir el ID del control que está debajo del mouse
 MouseHoverControls()
 {
     ;MyInstance.Opt(DefaultOptions, MouseHoverOptions)
-    Mouse.Opt("+Background" Color_MenuButtonX, "+Background" Color_MenuButtonX_MouseHover)
+    Hover.Opt("+Background" Color_MenuButtonX, "+Background" Color_MenuButtonX_MouseHover)
 }
 
 
@@ -126,12 +126,12 @@ Gui_Insert["Insert_Window"].GetPos(,,, &H)
 Gui_Insert["Insert_Window"].Move(,,, H*1.4)
 Gui_Insert["Insert_LastObject"].GetPos(, &Y,, &H)
 Gui_Insert["Insert_Background"].Move(,,, H+Y-Gui_Margin*2)
-Gui_Insert["Insert_TitleBarText"].OnEvent("Click", Window_Move)
+Gui_Insert["Insert_TitleBarText"].OnEvent("Click", GuiEvent.Move)
 Gui_Insert["Insert_ButtonX"].OnEvent("Click", Window_Close)
 Gui_Insert["Insert_Boton"].OnEvent("Click", Gui_Insert_Next)
 Gui_Insert_ID := Gui_Insert.hwnd
 Gui_Insert_ButtonX := Gui_Insert["Insert_ButtonX"].hwnd
-Mouse.AddControl(Gui_Insert["Insert_ButtonX"].hwnd)
+Hover.Add(Gui_Insert["Insert_ButtonX"].hwnd)
 
 ;   Esta GUI es la que se muestra insertada en la ventana que se seleccionó
 Gui_Home := Gui("-Caption LastFound")
@@ -160,7 +160,7 @@ Gui_Home["Home_ButtonX"].OnEvent("Click", Window_Close)
 Gui_Home["Home_ButtonX"].GetPos(&Home_ButtonX_X, &Home_ButtonX_Y, &Home_ButtonX_W, &Home_ButtonX_H)
 Gui_Home_ID := Gui_Home.hwnd
 Gui_Home_ButtonX := Gui_Home["Home_ButtonX"].hwnd
-Mouse.AddControl(Gui_Home["Home_ButtonX"].hwnd)
+Hover.Add(Gui_Home["Home_ButtonX"].hwnd)
 
 
 
@@ -243,4 +243,10 @@ Gui_Insert_Next(*)
             }
         }
     }
+}
+
+;   Terminar aplicación al cerrar la GUI
+Window_Close(*)
+{
+    ExitApp
 }
