@@ -1,11 +1,11 @@
-﻿;#Warn All, Off ; ← If you want it, use this for skip the errors (Not recomended)
+;#Warn All, Off ; ← If you want it, use this for skip the errors (Not recomended)
 #SingleInstance Force
-GuiEvent := GuiEvents()
+GuiEvent := GuiEventsManager()
 
 
 
 ;   Clase para controlar las GUI
-Class GuiEvents
+Class GuiEventsManager
 {
     Move(*)
     {
@@ -46,7 +46,7 @@ Class MouseHover
             This.hwnd := hwnd
             try
             {
-                MouseHoverControls() ; You need create this function in your code for add actions when mouse is 'MouseHover'
+                GuiEvents() ; You need create this function in your code for add actions when mouse is 'MouseHover'
             }
         }
     }
@@ -66,9 +66,8 @@ Class MouseHover
     ; MouseHover para las opciones (Background, color, etc)
     Opt(DefaultOptions, NewOptions)
     {
-        Static Control ; Recordar el control (El objeto) dentro de esta función
-        Static MouseIsHover := false ; El valor que recibe por primera vez es 'false' y recuerda sus valores en esta función
-        Static MouseIsHoverOther := false ; El valor que recibe por primera vez es 'false' y recuerda sus valores en esta función
+        Static MouseIsHover := false ; The value it receives for the first time is 'false' and it remembers its values in this function
+        Static MouseIsHoverOther := false ; The value it receives for the first time is 'false' and it remembers its values in this function
 
         if (GuiCtrlFromHwnd(This.hwnd)) ; Comprobar si el mouse está encima de un control
         {
@@ -76,22 +75,21 @@ Class MouseHover
             {
                 if (This.IsInList())
                 {
-                    Control := GuiCtrlFromHwnd(This.hwnd) ; Actualiza el objeto
-                    ThisGui := Control.Gui
+                    This.Control := GuiCtrlFromHwnd(This.hwnd) ; Actualiza el objeto
                     UpdateControl(NewOptions)
                     MouseIsHover := true ; Establecer como verdadero indicando que no se debe repetir esto
                     MouseIsHoverOther := false
                 }
             }
-            else if (!MouseIsHoverOther and (This.hwnd != Control.hwnd))
+            else if (!MouseIsHoverOther and (This.hwnd != This.Control.hwnd))
             {
+                UpdateControl(DefaultOptions)
+                MouseIsHoverOther := true ; Establecer como verdadero indicando que no se debe repetir esto
                 LastControl := GuiCtrlFromHwnd(This.hwnd) ; Actualiza el objeto
-                if (LastControl.hwnd != Control.hwnd)
+                if (LastControl.hwnd != This.Control.hwnd)
                 {
                     MouseIsHover := false
                 }
-                UpdateControl(DefaultOptions)
-                MouseIsHoverOther := true ; Establecer como verdadero indicando que no se debe repetir esto
             }
         }
         else if (MouseIsHover)
@@ -102,9 +100,8 @@ Class MouseHover
 
         UpdateControl(Options)
         {
-            Control.Opt(Options)
-            Control.Visible := false
-            Control.Visible := true
+            This.Control.Opt(Options)
+            This.Control.Redraw()
         }
     }
 
