@@ -1,6 +1,6 @@
 # ¡Create events in your GUIs easily!
 
-
+| **Examples** |
 |--------------|
 | Mouse Hover |
 | Click Hover |
