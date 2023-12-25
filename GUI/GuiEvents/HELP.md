@@ -4,7 +4,9 @@
 | **Library** |
 |-------------|
 | [GuiEvents.ahk](https://github.com/ElVerdaderoJuan/AutoHotkey/blob/241a6c007e20233874407f3aa757895f64bdef02/GUI/GuiEvents/GuiEvents.ahk)|
+
 <br>
+
 | **Examples** |
 |--------------|
 | [All examples](https://github.com/ElVerdaderoJuan/AutoHotkey/tree/241a6c007e20233874407f3aa757895f64bdef02/GUI/GuiEvents/Examples)|
